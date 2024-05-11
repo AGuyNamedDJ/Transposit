@@ -14,7 +14,7 @@ async function dropTables(){
             DROP TABLE IF EXISTS accounts CASCADE;
             DROP TABLE IF EXISTS transactions CASCADE;
             DROP TABLE IF EXISTS distribution_rules CASCADE;
-            DROP TABLE IF EXISTS incoming_funds CASCADE;
+            DROP TABLE IF EXISTS incoming_deposits CASCADE;
         `);
         console.log("Finished dropping tables.")
     } catch(error){
@@ -63,7 +63,7 @@ async function createTables() {
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
                 FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE
             );
-            CREATE TABLE IF NOT EXISTS incoming_funds (
+            CREATE TABLE IF NOT EXISTS incoming_deposits (
                 id SERIAL PRIMARY KEY,
                 user_id INTEGER NOT NULL,
                 amount DECIMAL(10, 2) NOT NULL,
