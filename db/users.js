@@ -79,9 +79,34 @@ async function getAllUsers() {
     }
 };
 
+// getUserById
+async function getUserById(id) {
+    try {
+        console.log(`Fetching user with ID: ${id}`);
+        const { rows: [ user ] } = await client.query(`
+            SELECT id, username, email, created_at
+            FROM users
+            WHERE id = $1;
+        `, [id]);
+
+        if (!user) {
+            console.log(`User with ID: ${id} not found!`);
+            return null;
+        } else {
+            console.log(`User with ID: ${id} retrieved successfully.`);
+            return user;
+        }
+    } catch (error) {
+        console.error(`Error retrieving user with ID: ${id}`);
+        console.error("Error details:", error);
+        throw new Error(`Failed to retrieve user due to a server error!`);
+    }
+};
+
 
 // Exports
 module.exports = {
     createUser,
-    getAllUsers
+    getAllUsers,
+    getUserById
 };
