@@ -16,8 +16,20 @@ function validateEmail(email) {
     return validator.isEmail(email);
 };
 
+function validateName(name) {
+    return typeof name === 'string' && name.trim().length > 0;
+};
+
+function validatePhoneNumber(phone) {
+    return typeof phone === 'string' && validator.isMobilePhone(phone, 'any', { strictMode: false });
+};
+
+function validateDateOfBirth(dob) {
+    return validator.isDate(dob);
+};
+
 // createUser
-async function createUser({ username, password, email }) {
+async function createUser({ username, password, email, first_name, last_name, phone_number, date_of_birth }) {
     const SALT_COUNT = 10;
 
     // Validate input
@@ -31,18 +43,28 @@ async function createUser({ username, password, email }) {
         throw new Error('Invalid email format.');
     }
 
+    if (!validateName(first_name) || !validateName(last_name)) {
+        throw new Error('Invalid name. Must not be empty.');
+    }
+    if (!validatePhoneNumber(phone_number)) {
+        throw new Error('Invalid phone number!');
+    }
+    if (!validateDateOfBirth(date_of_birth)) {
+        throw new Error('Invalid date of birth! Must be a valid date.');
+    }
+
     try {
         console.log(`Hashing password for ${username}`);
         const hashedPassword = await bcrypt.hash(password, SALT_COUNT);
         console.log(`Password hashed for ${username}, inserting into database`);
-  
+
         const result = await client.query(`
-            INSERT INTO users(username, password, email) 
-            VALUES($1, $2, $3)
+            INSERT INTO users(username, password, email, first_name, last_name, phone_number, date_of_birth)
+            VALUES($1, $2, $3, $4, $5, $6, $7)
             ON CONFLICT (username) DO NOTHING
-            RETURNING id, username, email, created_at;
-        `, [username, hashedPassword, email]);
-  
+            RETURNING id, username, email, first_name, last_name, phone_number, date_of_birth, created_at;
+        `, [username, hashedPassword, email, first_name, last_name, phone_number, date_of_birth]);
+
         const user = result.rows[0];
         if (user) {
             console.log(`User ${username} inserted into database`);
@@ -62,7 +84,7 @@ async function getAllUsers() {
     try {
         console.log("Fetching all users from the database.");
         const result = await client.query(`
-            SELECT id, username, email, created_at 
+            SELECT id, username, email, first_name, last_name, phone_number, date_of_birth, created_at
             FROM users;
         `);
 
@@ -84,7 +106,7 @@ async function getUserById(id) {
     try {
         console.log(`Fetching user with ID: ${id}`);
         const { rows: [ user ] } = await client.query(`
-            SELECT id, username, email, created_at
+            SELECT id, username, email, first_name, last_name, phone_number, date_of_birth, created_at
             FROM users
             WHERE id = $1;
         `, [id]);
@@ -103,10 +125,36 @@ async function getUserById(id) {
     }
 };
 
+// getUserByUsername
+async function getUserByUsername(username) {
+    try {
+        console.log(`Fetching user with username: ${username}`);
+        const { rows: [user] } = await client.query(`
+            SELECT id, username, email, first_name, last_name, phone_number, date_of_birth, created_at
+            FROM users
+            WHERE username = $1;
+        `, [username]);
+
+        if (!user) {
+            console.log(`No user found with username: ${username}`);
+            return null;
+        } else {
+            console.log(`User with username: ${username} retrieved successfully.`);
+            return user;
+        }
+    } catch (error) {
+        console.error(`Error retrieving user with username: ${username}`);
+        console.error("Error details:", error);
+        throw new Error(`Failed to retrieve user due to a server error!`);
+    }
+};
+
+
 
 // Exports
 module.exports = {
     createUser,
     getAllUsers,
-    getUserById
+    getUserById,
+    getUserByUsername
 };

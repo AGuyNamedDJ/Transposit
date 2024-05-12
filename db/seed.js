@@ -2,6 +2,7 @@
 const { client } = require('./index');
 
 // File Imports
+const { createUser, getAllUsers, getUserById, getUserByUsername } = require('./users');
 
 
 
@@ -14,7 +15,7 @@ async function dropTables(){
             DROP TABLE IF EXISTS accounts CASCADE;
             DROP TABLE IF EXISTS transactions CASCADE;
             DROP TABLE IF EXISTS distribution_rules CASCADE;
-            DROP TABLE IF EXISTS incoming_deposits CASCADE;
+            DROP TABLE IF EXISTS incoming_deposit CASCADE;
         `);
         console.log("Finished dropping tables.")
     } catch(error){
@@ -33,6 +34,10 @@ async function createTables() {
                 username VARCHAR(255) UNIQUE NOT NULL,
                 password VARCHAR(255) NOT NULL,
                 email VARCHAR(255) UNIQUE NOT NULL,
+                first_name VARCHAR(255),
+                last_name VARCHAR(255),
+                phone_number VARCHAR(15) UNIQUE,
+                date_of_birth DATE,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
             CREATE TABLE IF NOT EXISTS accounts (
