@@ -3,7 +3,7 @@ const { client } = require('./index');
 
 // File Imports
 const { createUser, getAllUsers, getUserById, getUserByUsername, updateUser, deleteUser } = require('./users');
-
+const { createAccount, getAccountById, getAllAccountsByUserId, getAccountByAccountNumber, getAllAccountsByRoutingNumber, updateAccount, deleteAccount } = require('./accounts');
 
 
 // Methods: dropTables
@@ -84,7 +84,7 @@ async function createTables() {
     }
 };
 
-// Method: createInitialUsers:
+// Method: createInitialUsers
 async function createInitialUsers() {
     console.log("Creating initial users...");
     try {
@@ -105,6 +105,31 @@ async function createInitialUsers() {
     }
 };
 
+// Method: createInitialAccounts
+async function createInitialAccounts() {
+    try {
+        console.log("Creating initial accounts...");
+
+        // Sample account data
+        await createAccount(1, {
+            account_type: 'savings',
+            account_name: 'Main Savings Account',
+            account_number: '123456789012',
+            routing_number: '110000000'
+        });
+
+        await createAccount(1, {  // Reusing the same user_id for multiple accounts
+            account_type: 'checking',
+            account_name: 'Everyday Expenses Account',
+            account_number: '987654321098',
+            routing_number: '110000001'
+        });
+
+        console.log("Initial accounts created successfully.");
+    } catch (error) {
+        console.error("Error creating initial accounts:", error);
+    }
+};
 
 // Rebuild DB
 async function rebuildDB() {
@@ -113,6 +138,7 @@ async function rebuildDB() {
         await dropTables();
         await createTables();
         await createInitialUsers();
+        await createInitialAccounts();
 
     } catch (error) {
         console.log("Error during rebuildDB!")
@@ -125,48 +151,65 @@ async function testDB() {
     try {
         console.log("Starting to test database...");
 
-    // Test User Helper FNs
-        console.log("Creating initial users...");
-        const userData1 = {
-            username: 'Owner1', 
-            password: 'SecurePass123!', 
-            email: 'user1@example.com', 
-            first_name: 'Dalron', 
-            last_name: 'Robertson', 
-            phone_number: '601-456-7890',
-            date_of_birth: '1980-01-01'
-        };
+    // // Test User.js Helper FNs
+    //     console.log("Creating initial users...");
+    //     const userData1 = {
+    //         username: 'Owner1', 
+    //         password: 'SecurePass123!', 
+    //         email: 'user1@example.com', 
+    //         first_name: 'Dalron', 
+    //         last_name: 'Robertson', 
+    //         phone_number: '601-456-7890',
+    //         date_of_birth: '1980-01-01'
+    //     };
 
-        const user1 = await createUser(userData1);
-        console.log("Created user", user1);
+    //     const user1 = await createUser(userData1);
+    //     console.log("Created user", user1);
 
-        // Test getAllUsers
-        console.log("Calling getAllUsers...");
-        const allUsers = await getAllUsers();
-        console.log("All users", allUsers);
+    //     // Test getAllUsers
+    //     console.log("Calling getAllUsers...");
+    //     const allUsers = await getAllUsers();
+    //     console.log("All users", allUsers);
 
-        // Assuming at least one user is created successfully
-        if (allUsers.length > 0) {
-            // Test getUserById
-            console.log("Calling getUserById for the first user...");
-            const userById = await getUserById(allUsers[0].id);
-            console.log("User by ID", userById);
+    //     // Assuming at least one user is created successfully
+    //     if (allUsers.length > 0) {
+    //         // Test getUserById
+    //         console.log("Calling getUserById for the first user...");
+    //         const userById = await getUserById(allUsers[0].id);
+    //         console.log("User by ID", userById);
 
-            // Test getUserByUsername
-            console.log("Calling getUserByUsername for the first user...");
-            const userByUsername = await getUserByUsername(allUsers[0].username);
-            console.log("User by Username", userByUsername);
+    //         // Test getUserByUsername
+    //         console.log("Calling getUserByUsername for the first user...");
+    //         const userByUsername = await getUserByUsername(allUsers[0].username);
+    //         console.log("User by Username", userByUsername);
 
-            // Test updateUser
-            console.log("Updating first user's last name...");
-            const updatedUser = await updateUser(allUsers[0].username, { last_name: 'UpdatedLastName' });
-            console.log("Updated user", updatedUser);
+    //         // Test updateUser
+    //         console.log("Updating first user's last name...");
+    //         const updatedUser = await updateUser(allUsers[0].username, { last_name: 'UpdatedLastName' });
+    //         console.log("Updated user", updatedUser);
 
-            // Test deleteUser
-            console.log("Deleting the first user...");
-            const deletedUser = await deleteUser(allUsers[0].username);
-            console.log("Deleted user", deletedUser);
-        }
+    //         // Test deleteUser
+    //         console.log("Deleting the first user...");
+    //         const deletedUser = await deleteUser(allUsers[0].username);
+    //         console.log("Deleted user", deletedUser);
+    //     }
+
+    // Test Accounts.js Helper FNs
+        // Test retrieving all accounts for a user
+        const userAccounts = await getAllAccountsByUserId(1);
+        console.log("Retrieved accounts for user ID 1:", userAccounts);
+
+        // Test updating an account
+        const updatedAccount = await updateAccount(userAccounts[0].id, {
+            account_name: 'Updated Main Savings Account',
+            account_number: '112233445566'
+        });
+        console.log("Updated account:", updatedAccount);
+
+        // Test deleting an account
+        const deleteResult = await deleteAccount(userAccounts[1].id);
+        console.log("Deleted account result:", deleteResult);
+    
 
 
 

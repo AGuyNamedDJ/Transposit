@@ -155,48 +155,59 @@ async function getAllAccountsByRoutingNumber(routingNumber) {
     }
 };
 
-//updateAccount
+// updateAccount
 async function updateAccount(accountId, updates) {
     const { account_type, account_name, account_number, routing_number } = updates;
 
-    // Validate and encrypt if necessary
-    if (account_type) validateAccountType(account_type);
-    if (account_name) validateAccountName(account_name);
-    if (account_number) {
+    let sql = 'UPDATE accounts SET ';
+    const sqlUpdates = [];
+    const params = [];
+
+    // Validate and prepare updates
+    if (account_type !== undefined) {
+        validateAccountType(account_type);
+        sqlUpdates.push(`account_type = $${sqlUpdates.length + 2}`);
+        params.push(account_type);
+    }
+    if (account_name !== undefined) {
+        validateAccountName(account_name);
+        sqlUpdates.push(`account_name = $${sqlUpdates.length + 2}`);
+        params.push(account_name);
+    }
+    if (account_number !== undefined) {
         validateAccountNumber(account_number);
-        updates.account_number = encrypt(account_number);
+        const encryptedAccountNumber = encrypt(account_number);
+        sqlUpdates.push(`account_number = $${sqlUpdates.length + 2}`);
+        params.push(encryptedAccountNumber);
     }
-    if (routing_number) {
+    if (routing_number !== undefined) {
         validateRoutingNumber(routing_number);
-        updates.routing_number = encrypt(routing_number);
+        const encryptedRoutingNumber = encrypt(routing_number);
+        sqlUpdates.push(`routing_number = $${sqlUpdates.length + 2}`);
+        params.push(encryptedRoutingNumber);
     }
 
-    const fields = { account_type, account_name, account_number, routing_number };
-    const setClauses = Object.keys(fields)
-        .filter(key => fields[key] !== undefined)
-        .map((key, index) => `"${key}"=$${index + 2}`).join(', ');
-    const values = Object.values(fields).filter(value => value !== undefined);
+    // Join all parts of the SQL update
+    sql += sqlUpdates.join(', ') + ' WHERE id = $1 RETURNING *;';
 
-    if (!setClauses.length) return null;  // No updates provided
+    // Add accountId as the first parameter
+    params.unshift(accountId);
 
     try {
-        const result = await client.query(`
-            UPDATE accounts
-            SET ${setClauses}
-            WHERE id = $1
-            RETURNING *;
-        `, [accountId, ...values]);
+        const result = await client.query(sql, params);
         if (result.rows.length) {
             const account = result.rows[0];
             account.account_number = decrypt(account.account_number);
             account.routing_number = decrypt(account.routing_number);
+            console.log(`Account ${accountId} updated successfully.`);
             return account;
         } else {
-            return null; // No account found
+            console.log(`No account found with ID: ${accountId}`);
+            return null;  // No account was found
         }
     } catch (error) {
         console.error(`Failed to update account ID ${accountId}: ${error}`);
-        throw new Error(`Failed to update account due to a server error!`);
+        throw new Error(`Failed to update account due to a server error.`);
     }
 };
 
