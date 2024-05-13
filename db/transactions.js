@@ -46,7 +46,9 @@ async function createTransaction(transactionDetails) {
 async function getTransactionById(transactionId) {
     try {
         const result = await client.query(`
-            SELECT * FROM transactions WHERE id = $1;
+            SELECT *
+            FROM transactions
+            WHERE id = $1;
         `, [transactionId]);
         if (result.rows.length) {
             result.rows[0].amount = decrypt(result.rows[0].amount);
@@ -59,8 +61,91 @@ async function getTransactionById(transactionId) {
     }
 };
 
-module.exports {
-    createTransaction,
-    getTransactionById
+// getTransactionsByUserId
+async function getTransactionsByUserId(userId) {
+    try {
+        const result = await client.query(`
+            SELECT *
+            FROM transactions
+            WHERE user_id = $1;
+        `, [userId]);
+        result.rows.forEach(row => row.amount = decrypt(row.amount));
+        return result.rows;
+    } catch (error) {
+        console.error(`Failed to retrieve transactions for user ID ${userId}: ${error}`);
+        throw error;
+    }
+};
 
-}
+// getTransactionsByAccountId
+async function getTransactionsByAccountId(accountId) {
+    try {
+        const result = await client.query(`
+            SELECT *
+            FROM transactions
+            WHERE account_id = $1;
+        `, [accountId]);
+        result.rows.forEach(row => row.amount = decrypt(row.amount));
+        return result.rows;
+    } catch (error) {
+        console.error(`Failed to retrieve transactions for account ID ${accountId}: ${error}`);
+        throw error;
+    }
+};
+
+// getTransactionsByAmount
+async function getTransactionsByAmount(amount) {
+    const encryptedAmount = encrypt(amount.toString());
+    try {
+        const result = await client.query(`
+            SELECT * FROM transactions WHERE amount = $1;
+        `, [encryptedAmount]);
+        result.rows.forEach(row => row.amount = decrypt(row.amount));
+        return result.rows;
+    } catch (error) {
+        console.error(`Failed to retrieve transactions by amount: ${error}`);
+        throw error;
+    }
+};
+
+// getTransactionsByDate
+async function getTransactionsByDate(transactionDate) {
+    try {
+        const result = await client.query(`
+            SELECT *
+            FROM transactions
+            WHERE DATE(transaction_date) = DATE($1);
+        `, [transactionDate]);
+        result.rows.forEach(row => row.amount = decrypt(row.amount));
+        return result.rows;
+    } catch (error) {
+        console.error(`Failed to retrieve transactions on date ${transactionDate}: ${error}`);
+        throw error;
+    }
+};
+
+// getTransactionsByStatus
+async function getTransactionsByStatus(status) {
+    try {
+        const result = await client.query(`
+            SELECT *
+            FROM transactions
+            WHERE status = $1;
+        `, [status]);
+        result.rows.forEach(row => row.amount = decrypt(row.amount));
+        return result.rows;
+    } catch (error) {
+        console.error(`Failed to retrieve transactions with status ${status}: ${error}`);
+        throw error;
+    }
+};
+
+module.exports = {
+    createTransaction,
+    getTransactionById,
+    getTransactionsByUserId,
+    getTransactionsByAccountId,
+    getTransactionsByAmount,
+    getTransactionsByDate,
+    getTransactionsByStatus
+};
