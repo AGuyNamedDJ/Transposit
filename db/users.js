@@ -149,6 +149,60 @@ async function getUserByUsername(username) {
     }
 };
 
+// updateUser
+async function updateUser(username, fields = {}) {
+    // Validate input
+    if (!username || Object.keys(fields).length === 0) {
+        console.log("No updates or username provided.");
+        return null; // Early exit if no fields provided or username is missing
+    }
+
+    const values = [];
+    const setClauses = [];
+
+    Object.keys(fields).forEach((key, index) => {
+        if (fields[key] !== undefined) { // Ensure only defined fields are updated
+            values.push(fields[key]);
+            setClauses.push(`"${key}"=$${index + 1}`);
+        }
+    });
+
+    // If the password field is present, hash the new password
+    if (fields.password) {
+        console.log("Hashing new password.");
+        values[values.indexOf(fields.password)] = await bcrypt.hash(fields.password, 10);
+    }
+    
+    // Check if there are fields to update
+    if (setClauses.length === 0) {
+        console.log("No valid fields to update.");
+        return null;
+    }
+
+    values.push(username);
+
+    try {
+        console.log(`Updating user ${username}`);
+        const { rows: [user] } = await client.query(`
+            UPDATE users
+            SET ${setClauses.join(', ')}
+            WHERE username=$${values.length}
+            RETURNING id, username, email, first_name, last_name, phone_number, date_of_birth, created_at;
+        `, values);
+
+        if (!user) {
+            console.log(`User ${username} not found.`);
+            return null;
+        }
+
+        console.log(`User ${username} updated successfully.`);
+        return user;
+    } catch (error) {
+        console.error(`Could not update user ${username}: ${error}`);
+        throw new Error(`Failed to update user due to a server error.`);
+    }
+};
+
 
 
 // Exports
@@ -156,5 +210,6 @@ module.exports = {
     createUser,
     getAllUsers,
     getUserById,
-    getUserByUsername
+    getUserByUsername,
+    updateUser
 };
