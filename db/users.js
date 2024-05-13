@@ -203,7 +203,38 @@ async function updateUser(username, fields = {}) {
     }
 };
 
+// deleteUser
+async function deleteUser(username) {
+    try {
+        console.log(`Attempting to delete user ${username}`);
+        await client.query('BEGIN');
 
+        // Check if the user exists
+        const userCheck = await client.query(`
+            SELECT id FROM users WHERE username = $1
+        `, [username]);
+
+        if (userCheck.rows.length === 0) {
+            console.log(`User ${username} not found, cancelling deletion.`);
+            await client.query('ROLLBACK');  // Rollback if no user found
+            return null;  // Indicate that no user was found
+        }
+
+        // Proceed to delete user
+        const result = await client.query(`
+            DELETE FROM users WHERE username = $1 RETURNING username
+        `, [username]);
+
+        await client.query('COMMIT'); 
+        console.log(`User ${username} successfully deleted.`);
+
+        return result.rows[0]; 
+    } catch (error) {
+        await client.query('ROLLBACK');  // Rollback on error
+        console.error(`Failed to delete user ${username}: ${error}`);
+        throw new Error(`Failed to delete user due to a server error.`);
+    }
+};
 
 // Exports
 module.exports = {
@@ -211,5 +242,6 @@ module.exports = {
     getAllUsers,
     getUserById,
     getUserByUsername,
-    updateUser
+    updateUser,
+    deleteUser
 };

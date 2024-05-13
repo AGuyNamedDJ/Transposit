@@ -2,7 +2,7 @@
 const { client } = require('./index');
 
 // File Imports
-const { createUser, getAllUsers, getUserById, getUserByUsername } = require('./users');
+const { createUser, getAllUsers, getUserById, getUserByUsername, updateUser, deleteUser } = require('./users');
 
 
 
@@ -83,3 +83,35 @@ async function createTables() {
         console.log(error);
     }
 };
+
+// Rebuild DB
+async function rebuildDB() {
+    try {
+        client.connect();
+        await dropTables();
+        await createTables();
+        await createInitialUsers();
+
+    } catch (error) {
+        console.log("Error during rebuildDB!")
+        console.log(error.detail);
+    }
+};
+
+// Test DB
+async function testDB() {
+    try {
+        console.log("Starting to test database...");
+
+
+    } catch (error) {
+        console.log("Error during testDB!");
+        console.log(error);
+    }
+};
+
+// Rebuild Call
+rebuildDB()
+.then(testDB)
+.catch(console.error)
+.finally(() => client.end())
