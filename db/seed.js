@@ -84,6 +84,28 @@ async function createTables() {
     }
 };
 
+// Method: createInitialUsers:
+async function createInitialUsers() {
+    console.log("Creating initial users...");
+    try {
+        await createUser({
+            username: 'Owner1', 
+            password: 'SecurePass123!', 
+            email: 'user1@example.com', 
+            first_name: 'Dalron', 
+            last_name: 'Robertson', 
+            phone_number: '601-456-7890',
+            date_of_birth: '1980-01-01'
+        });
+    
+        console.log("Finished creating initial user.");
+    } catch (error) {
+        console.error("Error creating initial user!");
+        console.log(error);
+    }
+};
+
+
 // Rebuild DB
 async function rebuildDB() {
     try {
@@ -102,6 +124,50 @@ async function rebuildDB() {
 async function testDB() {
     try {
         console.log("Starting to test database...");
+
+    // Test User Helper FNs
+        console.log("Creating initial users...");
+        const userData1 = {
+            username: 'Owner1', 
+            password: 'SecurePass123!', 
+            email: 'user1@example.com', 
+            first_name: 'Dalron', 
+            last_name: 'Robertson', 
+            phone_number: '601-456-7890',
+            date_of_birth: '1980-01-01'
+        };
+
+        const user1 = await createUser(userData1);
+        console.log("Created user", user1);
+
+        // Test getAllUsers
+        console.log("Calling getAllUsers...");
+        const allUsers = await getAllUsers();
+        console.log("All users", allUsers);
+
+        // Assuming at least one user is created successfully
+        if (allUsers.length > 0) {
+            // Test getUserById
+            console.log("Calling getUserById for the first user...");
+            const userById = await getUserById(allUsers[0].id);
+            console.log("User by ID", userById);
+
+            // Test getUserByUsername
+            console.log("Calling getUserByUsername for the first user...");
+            const userByUsername = await getUserByUsername(allUsers[0].username);
+            console.log("User by Username", userByUsername);
+
+            // Test updateUser
+            console.log("Updating first user's last name...");
+            const updatedUser = await updateUser(allUsers[0].username, { last_name: 'UpdatedLastName' });
+            console.log("Updated user", updatedUser);
+
+            // Test deleteUser
+            console.log("Deleting the first user...");
+            const deletedUser = await deleteUser(allUsers[0].username);
+            console.log("Deleted user", deletedUser);
+        }
+
 
 
     } catch (error) {
