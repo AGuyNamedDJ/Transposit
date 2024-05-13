@@ -195,40 +195,40 @@ async function testDB() {
     //     }
 
     // Test Accounts.js Helper FNs
-        // Test retrieving all accounts for a user
-        console.log("Calling getAllAccountsByUserId...");
-        const userAccounts = await getAllAccountsByUserId(1);
-        console.log("Retrieved accounts for user ID 1:", userAccounts);
+        // // Test retrieving all accounts for a user
+        // console.log("Calling getAllAccountsByUserId...");
+        // const userAccounts = await getAllAccountsByUserId(1);
+        // console.log("Retrieved accounts for user ID 1:", userAccounts);
 
-        // Test getAccountById
-        console.log("Calling getAccountById for the first account...");
-        const accountById = await getAccountById(userAccounts[0].id);
-        console.log("Account by ID:", accountById);
+        // // Test getAccountById
+        // console.log("Calling getAccountById for the first account...");
+        // const accountById = await getAccountById(userAccounts[0].id);
+        // console.log("Account by ID:", accountById);
 
-        // Test getAccountByAccountNumber
-        console.log("Calling getAccountByAccountNumber...");
-        const accountByNumber = await getAccountByAccountNumber(userAccounts[0].account_number);
-        console.log("Account by Account Number:", accountByNumber);
+        // // Test getAccountByAccountNumber
+        // console.log("Calling getAccountByAccountNumber...");
+        // const accountByNumber = await getAccountByAccountNumber(userAccounts[0].account_number);
+        // console.log("Account by Account Number:", accountByNumber);
 
-        // Test getAllAccountsByRoutingNumber
-        console.log("Calling getAllAccountsByRoutingNumber...");
-        const accountsByRoutingNumber = await getAllAccountsByRoutingNumber(userAccounts[0].routing_number);
-        console.log("Accounts by Routing Number:", accountsByRoutingNumber);
+        // // Test getAllAccountsByRoutingNumber
+        // console.log("Calling getAllAccountsByRoutingNumber...");
+        // const accountsByRoutingNumber = await getAllAccountsByRoutingNumber(userAccounts[0].routing_number);
+        // console.log("Accounts by Routing Number:", accountsByRoutingNumber);
 
-        // Test updating an account
-        console.log("Calling updateAccount...");
-        const updatedAccount = await updateAccount(userAccounts[0].id, {
-            account_name: 'Updated Main Savings Account',
-            account_number: '112233445566'
-        });
-        console.log("Updated account:", updatedAccount);
+        // // Test updating an account
+        // console.log("Calling updateAccount...");
+        // const updatedAccount = await updateAccount(userAccounts[0].id, {
+        //     account_name: 'Updated Main Savings Account',
+        //     account_number: '112233445566'
+        // });
+        // console.log("Updated account:", updatedAccount);
 
-        // Test deleting an account
-        console.log("Calling deleteAccount...");
-        const deleteResult = await deleteAccount(userAccounts[1].id);
-        console.log("Deleted account result:", deleteResult);
+        // // Test deleting an account
+        // console.log("Calling deleteAccount...");
+        // const deleteResult = await deleteAccount(userAccounts[1].id);
+        // console.log("Deleted account result:", deleteResult);
     
-
+    // Test Transactions.js Helper.js FNs
 
 
     } catch (error) {
