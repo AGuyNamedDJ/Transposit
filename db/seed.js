@@ -4,7 +4,7 @@ const { client } = require('./index');
 // File Imports
 const { createUser, getAllUsers, getUserById, getUserByUsername, updateUser, deleteUser } = require('./users');
 const { createAccount, getAccountById, getAllAccountsByUserId, getAccountByAccountNumber, getAllAccountsByRoutingNumber, updateAccount, deleteAccount } = require('./accounts');
-const { createTransaction, getTransactionById, getTransactionsByUserId, getTransactionsByAccountId, getTransactionsByAmount,getTransactionsByDate, getTransactionsByStatus } = require('./transactions');
+const { createTransaction, getAllTransactions ,getTransactionById, getTransactionsByUserId, getTransactionsByAccountId, getTransactionsByAmount,getTransactionsByDate, getTransactionsByStatus, getTransactionsBeforeDate, getTransactionsAfterDate, getTransactionsBetweenDates } = require('./transactions');
 
 
 // Methods: dropTables
@@ -55,13 +55,13 @@ async function createTables() {
                 id SERIAL PRIMARY KEY,
                 user_id INTEGER NOT NULL,
                 account_id INTEGER NOT NULL,
-                amount DECIMAL(10, 2) NOT NULL,
+                amount TEXT NOT NULL,
                 transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 status VARCHAR(50) DEFAULT 'pending',
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
                 FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE
             );
-            CREATE TABLE IF NOT EXISTS distribution_rules (
+                CREATE TABLE IF NOT EXISTS distribution_rules (
                 id SERIAL PRIMARY KEY,
                 user_id INTEGER NOT NULL,
                 account_id INTEGER NOT NULL,
@@ -251,10 +251,73 @@ async function testDB() {
         // console.log("Deleted account result:", deleteResult);
     
     // Test Transactions.js Helper.js FNs
-        // Test retrieving transactions by user ID
+        // Test createTransaction
+        console.log("Creating initial transactions...");
+        const transaction1 = await createTransaction({
+            user_id: 1,
+            account_id: 1,
+            amount: '100.00',
+            status: 'completed',
+            transaction_date: '2023-05-01'
+        });
+        const transaction2 = await createTransaction({
+            user_id: 1,
+            account_id: 2,
+            amount: '200.00',
+            status: 'pending',
+            transaction_date: '2023-07-01'
+        });
+        console.log("Transactions created:", transaction1, transaction2);
+
+        // Test getTransactionById
+        console.log("Calling getTransactionById...");
+        const singleTransactionById = await getTransactionById(transaction1.id);
+        console.log("Transaction by ID:", singleTransactionById);
+
+        // Test getTransactionsByUserId
         console.log("Calling getTransactionsByUserId...");
         const userTransactions = await getTransactionsByUserId(1);
-        console.log("Retrieved transactions for user ID 1:", userTransactions);
+        console.log("Transactions for user ID 1:", userTransactions);
+
+        // Test getTransactionsByAccountId
+        console.log("Calling getTransactionsByAccountId...");
+        const accountTransactions = await getTransactionsByAccountId(1);
+        console.log("Transactions for account ID 1:", accountTransactions);
+
+        // Test getTransactionsByAmount
+        console.log("Calling getTransactionsByAmount...");
+        const transactionsByAmount = await getTransactionsByAmount('100.00');
+        console.log("Transactions by amount 100.00:", transactionsByAmount);
+
+        // Test getTransactionsByDate
+        console.log("Calling getTransactionsByDate...");
+        const transactionsByDate = await getTransactionsByDate('2023-05-01');
+        console.log("Transactions on date 2023-05-01:", transactionsByDate);
+
+        // Test getTransactionsByStatus
+        console.log("Calling getTransactionsByStatus...");
+        const transactionsByStatus = await getTransactionsByStatus('pending');
+        console.log("Transactions with status 'pending':", transactionsByStatus);
+
+        // Test getTransactionsBeforeDate
+        console.log("Calling getTransactionsBeforeDate...");
+        const transactionsBeforeDate = await getTransactionsBeforeDate('2023-06-01');
+        console.log("Transactions created before June 2023:", transactionsBeforeDate);
+
+        // Test getTransactionsAfterDate
+        console.log("Calling getTransactionsAfterDate...");
+        const transactionsAfterDate = await getTransactionsAfterDate('2023-06-01');
+        console.log("Transactions created after June 2023:", transactionsAfterDate);
+
+        // Test getTransactionsBetweenDates
+        console.log("Calling getTransactionsBetweenDates...");
+        const transactionsBetweenDates = await getTransactionsBetweenDates('2023-05-01', '2023-07-01');
+        console.log("Transactions created between May 2023 and July 2023:", transactionsBetweenDates);
+
+        // Test getAllTransactions
+        console.log("Calling getAllTransactions...");
+        const allTransactions = await getAllTransactions();
+        console.log("All transactions:", allTransactions);
     
 
 

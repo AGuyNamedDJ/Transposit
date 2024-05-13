@@ -42,6 +42,21 @@ async function createTransaction(transactionDetails) {
     }
 };
 
+// getAllTransactions
+async function getAllTransactions() {
+    try {
+        const result = await client.query(`
+            SELECT *
+            FROM transactions;
+        `);
+        result.rows.forEach(row => row.amount = decrypt(row.amount));
+        return result.rows;
+    } catch (error) {
+        console.error('Failed to retrieve all transactions:', error);
+        throw error;
+    }
+};
+
 // getTransactionById
 async function getTransactionById(transactionId) {
     try {
@@ -190,6 +205,7 @@ async function getTransactionsByStatus(status) {
 
 module.exports = {
     createTransaction,
+    getAllTransactions,
     getTransactionById,
     getTransactionsByUserId,
     getTransactionsByAccountId,
