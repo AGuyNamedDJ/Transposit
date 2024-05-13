@@ -25,16 +25,17 @@ function decrypt(text) {
 };
 
 // createIncomingFund
-async function createIncomingFund(details) {
-    const { user_id, amount, source, received_date = new Date() } = details;
-    const encryptedAmount = encrypt(amount.toString()); // Encrypt amount
+async function createIncomingFund(incomingFundDetails) {
+    const { user_id, amount, source, received_date = new Date() } = incomingFundDetails;
+    const encryptedSource = encrypt(source); // Encrypt source only
 
     try {
         const result = await client.query(`
             INSERT INTO incoming_deposits(user_id, amount, source, received_date)
             VALUES($1, $2, $3, $4)
             RETURNING *;
-        `, [user_id, encryptedAmount, source, received_date]);
+        `, [user_id, amount, encryptedSource, received_date]);
+        console.log(`Incoming fund created successfully for user ID ${user_id}`);
         return result.rows[0];
     } catch (error) {
         console.error('Failed to create incoming fund:', error);
@@ -46,17 +47,15 @@ async function createIncomingFund(details) {
 async function getIncomingFundById(id) {
     try {
         const result = await client.query(`
-            SELECT *
-            FROM incoming_deposits
-            WHERE id = $1;
+            SELECT * FROM incoming_deposits WHERE id = $1;
         `, [id]);
         if (result.rows.length) {
-            result.rows[0].amount = decrypt(result.rows[0].amount);
+            result.rows[0].source = decrypt(result.rows[0].source);
             return result.rows[0];
         }
         return null;
     } catch (error) {
-        console.error('Failed to retrieve incoming fund:', error);
+        console.error(`Failed to retrieve incoming fund by ID ${id}: ${error}`);
         throw error;
     }
 };
@@ -65,11 +64,11 @@ async function getIncomingFundById(id) {
 async function getIncomingFundsByUserId(userId) {
     try {
         const result = await client.query(`
-            SELECT *
-            FROM incoming_deposits
-            WHERE user_id = $1;
+            SELECT * FROM incoming_deposits WHERE user_id = $1;
         `, [userId]);
-        result.rows.forEach(row => row.amount = decrypt(row.amount));
+        result.rows.forEach(row => {
+            row.source = decrypt(row.source);
+        });
         return result.rows;
     } catch (error) {
         console.error(`Failed to retrieve incoming funds for user ID ${userId}: ${error}`);
@@ -79,85 +78,81 @@ async function getIncomingFundsByUserId(userId) {
 
 // getIncomingFundsByAmount
 async function getIncomingFundsByAmount(amount) {
-    const encryptedAmount = encrypt(amount.toString());
     try {
         const result = await client.query(`
-            SELECT *
-            FROM incoming_deposits
-            WHERE amount = $1;
-        `, [encryptedAmount]);
-        result.rows.forEach(row => row.amount = decrypt(row.amount));
+            SELECT * FROM incoming_deposits WHERE amount = $1;
+        `, [amount]);
+        result.rows.forEach(row => {
+            row.source = decrypt(row.source);
+        });
         return result.rows;
     } catch (error) {
-        console.error(`Failed to retrieve incoming funds by amount: ${error}`);
+        console.error(`Failed to retrieve incoming funds by amount ${amount}: ${error}`);
         throw error;
     }
 };
 
 // getIncomingFundsByAmountAbove
 async function getIncomingFundsByAmountAbove(amount) {
-    const encryptedAmount = encrypt(amount.toString());
     try {
         const result = await client.query(`
-            SELECT *
-            FROM incoming_deposits
-            WHERE amount > $1;
-        `, [encryptedAmount]);
-        result.rows.forEach(row => row.amount = decrypt(row.amount));
+            SELECT * FROM incoming_deposits WHERE amount > $1;
+        `, [amount]);
+        result.rows.forEach(row => {
+            row.source = decrypt(row.source);
+        });
         return result.rows;
     } catch (error) {
-        console.error(`Failed to retrieve incoming funds above amount: ${error}`);
+        console.error(`Failed to retrieve incoming funds with amount above ${amount}: ${error}`);
         throw error;
     }
 };
 
 // getIncomingFundsByAmountBelow
 async function getIncomingFundsByAmountBelow(amount) {
-    const encryptedAmount = encrypt(amount.toString());
     try {
         const result = await client.query(`
-            SELECT *
-            FROM incoming_deposits
-            WHERE amount < $1;
-        `, [encryptedAmount]);
-        result.rows.forEach(row => row.amount = decrypt(row.amount));
+            SELECT * FROM incoming_deposits WHERE amount < $1;
+        `, [amount]);
+        result.rows.forEach(row => {
+            row.source = decrypt(row.source);
+        });
         return result.rows;
     } catch (error) {
-        console.error(`Failed to retrieve incoming funds below amount: ${error}`);
+        console.error(`Failed to retrieve incoming funds with amount below ${amount}: ${error}`);
         throw error;
     }
 };
 
 // getIncomingFundsByAmountBetween
 async function getIncomingFundsByAmountBetween(minAmount, maxAmount) {
-    const encryptedMinAmount = encrypt(minAmount.toString());
-    const encryptedMaxAmount = encrypt(maxAmount.toString());
     try {
         const result = await client.query(`
-            SELECT *
-            FROM incoming_deposits
-            WHERE amount >= $1 AND amount <= $2;
-        `, [encryptedMinAmount, encryptedMaxAmount]);
-        result.rows.forEach(row => row.amount = decrypt(row.amount));
+            SELECT * FROM incoming_deposits WHERE amount BETWEEN $1 AND $2;
+        `, [minAmount, maxAmount]);
+        result.rows.forEach(row => {
+            row.source = decrypt(row.source);
+        });
         return result.rows;
     } catch (error) {
-        console.error(`Failed to retrieve incoming funds between amounts: ${error}`);
+        console.error(`Failed to retrieve incoming funds with amount between ${minAmount} and ${maxAmount}: ${error}`);
         throw error;
     }
 };
 
 // getIncomingFundsBySource
 async function getIncomingFundsBySource(source) {
+    const encryptedSource = encrypt(source);
     try {
         const result = await client.query(`
-            SELECT *
-            FROM incoming_deposits
-            WHERE source = $1;
-        `, [source]);
-        result.rows.forEach(row => row.amount = decrypt(row.amount));
+            SELECT * FROM incoming_deposits WHERE source = $1;
+        `, [encryptedSource]);
+        result.rows.forEach(row => {
+            row.source = decrypt(row.source);
+        });
         return result.rows;
     } catch (error) {
-        console.error(`Failed to retrieve incoming funds by source: ${error}`);
+        console.error(`Failed to retrieve incoming funds by source ${source}: ${error}`);
         throw error;
     }
 };
@@ -166,14 +161,14 @@ async function getIncomingFundsBySource(source) {
 async function getIncomingFundsBeforeDate(date) {
     try {
         const result = await client.query(`
-            SELECT *
-            FROM incoming_deposits
-            WHERE received_date < $1;
+            SELECT * FROM incoming_deposits WHERE received_date < $1;
         `, [date]);
-        result.rows.forEach(row => row.amount = decrypt(row.amount));
+        result.rows.forEach(row => {
+            row.source = decrypt(row.source);
+        });
         return result.rows;
     } catch (error) {
-        console.error(`Failed to retrieve incoming funds before date: ${error}`);
+        console.error(`Failed to retrieve incoming funds before date ${date}: ${error}`);
         throw error;
     }
 };
@@ -182,14 +177,14 @@ async function getIncomingFundsBeforeDate(date) {
 async function getIncomingFundsAfterDate(date) {
     try {
         const result = await client.query(`
-            SELECT *
-            FROM incoming_deposits
-            WHERE received_date > $1;
+            SELECT * FROM incoming_deposits WHERE received_date > $1;
         `, [date]);
-        result.rows.forEach(row => row.amount = decrypt(row.amount));
+        result.rows.forEach(row => {
+            row.source = decrypt(row.source);
+        });
         return result.rows;
     } catch (error) {
-        console.error(`Failed to retrieve incoming funds after date: ${error}`);
+        console.error(`Failed to retrieve incoming funds after date ${date}: ${error}`);
         throw error;
     }
 };
@@ -198,65 +193,44 @@ async function getIncomingFundsAfterDate(date) {
 async function getIncomingFundsBetweenDates(startDate, endDate) {
     try {
         const result = await client.query(`
-            SELECT *
-            FROM incoming_deposits
-            WHERE received_date BETWEEN $1 AND $2;
+            SELECT * FROM incoming_deposits WHERE received_date BETWEEN $1 AND $2;
         `, [startDate, endDate]);
-        result.rows.forEach(row => row.amount = decrypt(row.amount));
+        result.rows.forEach(row => {
+            row.source = decrypt(row.source);
+        });
         return result.rows;
     } catch (error) {
-        console.error(`Failed to retrieve incoming funds between dates: ${error}`);
+        console.error(`Failed to retrieve incoming funds between dates ${startDate} and ${endDate}: ${error}`);
         throw error;
     }
 };
 
 // updateIncomingFund
 async function updateIncomingFund(id, updates) {
-    const setClauses = [];
+    const fields = [];
     const values = [];
     let index = 1;
 
-    if (updates.amount !== undefined) {
-        updates.amount = encrypt(updates.amount.toString());
-        setClauses.push(`amount = $${index}`);
-        values.push(updates.amount);
+    for (const key in updates) {
+        fields.push(`${key} = $${index}`);
+        values.push(updates[key]);
         index++;
     }
-    if (updates.source !== undefined) {
-        setClauses.push(`source = $${index}`);
-        values.push(updates.source);
-        index++;
-    }
-    if (updates.received_date !== undefined) {
-        setClauses.push(`received_date = $${index}`);
-        values.push(updates.received_date);
-        index++;
-    }
-
-    if (setClauses.length === 0) {
-        console.log("No updates provided.");
-        return null;
-    }
-
     values.push(id);
+
+    const setString = fields.join(', ');
 
     try {
         const result = await client.query(`
             UPDATE incoming_deposits
-            SET ${setClauses.join(', ')}
+            SET ${setString}
             WHERE id = $${index}
             RETURNING *;
         `, values);
-        if (result.rows.length) {
-            console.log(`Incoming fund with ID ${id} updated successfully.`);
-            result.rows[0].amount = decrypt(result.rows[0].amount);
-            return result.rows[0];
-        } else {
-            console.log(`Incoming fund with ID ${id} not found.`);
-            return null;
-        }
+
+        return result.rows[0];
     } catch (error) {
-        console.error(`Failed to update incoming fund with ID ${id}: ${error}`);
+        console.error(`Failed to update incoming fund ${id}: ${error}`);
         throw error;
     }
 };
@@ -267,16 +241,9 @@ async function deleteIncomingFund(id) {
         const result = await client.query(`
             DELETE FROM incoming_deposits WHERE id = $1 RETURNING *;
         `, [id]);
-        if (result.rows.length) {
-            console.log(`Incoming fund with ID ${id} deleted successfully.`);
-            result.rows[0].amount = decrypt(result.rows[0].amount);
-            return result.rows[0];
-        } else {
-            console.log(`Incoming fund with ID ${id} not found.`);
-            return null;
-        }
+        return result.rows[0];
     } catch (error) {
-        console.error(`Failed to delete incoming fund with ID ${id}: ${error}`);
+        console.error(`Failed to delete incoming fund ${id}: ${error}`);
         throw error;
     }
 };

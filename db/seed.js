@@ -6,6 +6,7 @@ const { createUser, getAllUsers, getUserById, getUserByUsername, updateUser, del
 const { createAccount, getAccountById, getAllAccountsByUserId, getAccountByAccountNumber, getAllAccountsByRoutingNumber, updateAccount, deleteAccount } = require('./accounts');
 const { createTransaction, getAllTransactions ,getTransactionById, getTransactionsByUserId, getTransactionsByAccountId, getTransactionsByAmount,getTransactionsByDate, getTransactionsByStatus, getTransactionsBeforeDate, getTransactionsAfterDate, getTransactionsBetweenDates } = require('./transactions');
 const { createDistributionRule, getRuleById, getRulesByUserId, updateRule,deleteRule } = require ('./distributionRules');
+const { createIncomingFund, getIncomingFundById, getIncomingFundsByUserId, getIncomingFundsByAmount, getIncomingFundsByAmountAbove, getIncomingFundsByAmountBelow, getIncomingFundsByAmountBetween, getIncomingFundsBySource, getIncomingFundsBeforeDate, getIncomingFundsAfterDate, getIncomingFundsBetweenDates, updateIncomingFund, deleteIncomingFund } = require ('./incomingDeposits');
 
 // Methods: dropTables
 async function dropTables(){
@@ -174,6 +175,35 @@ async function createInitialDistributionRules() {
     }
 };
 
+// Methods: createInitialIncomingDeposits
+async function createInitialIncomingDeposits() {
+    console.log("Creating initial incoming deposits...");
+    try {
+        await createIncomingFund({
+            user_id: 1,
+            amount: 1500.00,
+            source: 'Salary',
+            received_date: '2023-05-10'
+        });
+        await createIncomingFund({
+            user_id: 1,
+            amount: 200.00,
+            source: 'Freelance Work',
+            received_date: '2023-06-15'
+        });
+        await createIncomingFund({
+            user_id: 1,
+            amount: 500.00,
+            source: 'Investment Return',
+            received_date: '2023-07-01'
+        });
+
+        console.log("Initial incoming deposits created successfully.");
+    } catch (error) {
+        console.error("Error creating initial incoming deposits!");
+        console.error(error);
+    }
+};
 
 // Rebuild DB
 async function rebuildDB() {
@@ -185,7 +215,7 @@ async function rebuildDB() {
         await createInitialAccounts();
         await createInitialTransactions();
         await createInitialDistributionRules();
-
+        await createInitialIncomingDeposits();
     } catch (error) {
         console.log("Error during rebuildDB!")
         console.log(error.detail);
@@ -378,8 +408,88 @@ async function testDB() {
         // const deletedRule = await deleteRule(rule2.id);
         // console.log("Deleted rule:", deletedRule);
 
-   
+    // Test IncomingDeposits.js Helper FNs
+        // // Test createIncomingFund
+        // console.log("Creating initial incoming deposits...");
+        // const deposit1 = await createIncomingFund({
+        //     user_id: 1,
+        //     amount: 1500.00,
+        //     source: 'Salary',
+        //     received_date: '2023-05-10'
+        // });
+        // const deposit2 = await createIncomingFund({
+        //     user_id: 1,
+        //     amount: 200.00,
+        //     source: 'Freelance Work',
+        //     received_date: '2023-06-15'
+        // });
+        // const deposit3 = await createIncomingFund({
+        //     user_id: 1,
+        //     amount: 500.00,
+        //     source: 'Investment Return',
+        //     received_date: '2023-07-01'
+        // });
+        // console.log("Incoming deposits created:", deposit1, deposit2, deposit3);
 
+        // // Test getIncomingFundById
+        // console.log("Calling getIncomingFundById...");
+        // const singleDepositById = await getIncomingFundById(deposit1.id);
+        // console.log("Incoming fund by ID:", singleDepositById);
+
+        // // Test getIncomingFundsByUserId
+        // console.log("Calling getIncomingFundsByUserId...");
+        // const userDeposits = await getIncomingFundsByUserId(1);
+        // console.log("Incoming funds for user ID 1:", userDeposits);
+
+        // // Test getIncomingFundsByAmount
+        // console.log("Calling getIncomingFundsByAmount...");
+        // const depositsByAmount = await getIncomingFundsByAmount(200.00);
+        // console.log("Incoming funds with amount 200.00:", depositsByAmount);
+
+        // // Test getIncomingFundsByAmountAbove
+        // console.log("Calling getIncomingFundsByAmountAbove...");
+        // const depositsByAmountAbove = await getIncomingFundsByAmountAbove(1000.00);
+        // console.log("Incoming funds with amount above 1000.00:", depositsByAmountAbove);
+
+        // // Test getIncomingFundsByAmountBelow
+        // console.log("Calling getIncomingFundsByAmountBelow...");
+        // const depositsByAmountBelow = await getIncomingFundsByAmountBelow(1000.00);
+        // console.log("Incoming funds with amount below 1000.00:", depositsByAmountBelow);
+
+        // // Test getIncomingFundsByAmountBetween
+        // console.log("Calling getIncomingFundsByAmountBetween...");
+        // const depositsByAmountBetween = await getIncomingFundsByAmountBetween(200.00, 1500.00);
+        // console.log("Incoming funds with amount between 200.00 and 1500.00:", depositsByAmountBetween);
+
+        // // Test getIncomingFundsBySource
+        // console.log("Calling getIncomingFundsBySource...");
+        // const depositsBySource = await getIncomingFundsBySource('Freelance Work');
+        // console.log("Incoming funds with source 'Freelance Work':", depositsBySource);
+
+        // // Test getIncomingFundsBeforeDate
+        // console.log("Calling getIncomingFundsBeforeDate...");
+        // const depositsBeforeDate = await getIncomingFundsBeforeDate('2023-06-01');
+        // console.log("Incoming funds before date 2023-06-01:", depositsBeforeDate);
+
+        // // Test getIncomingFundsAfterDate
+        // console.log("Calling getIncomingFundsAfterDate...");
+        // const depositsAfterDate = await getIncomingFundsAfterDate('2023-06-01');
+        // console.log("Incoming funds after date 2023-06-01:", depositsAfterDate);
+
+        // // Test getIncomingFundsBetweenDates
+        // console.log("Calling getIncomingFundsBetweenDates...");
+        // const depositsBetweenDates = await getIncomingFundsBetweenDates('2023-05-01', '2023-07-01');
+        // console.log("Incoming funds between dates 2023-05-01 and 2023-07-01:", depositsBetweenDates);
+
+        // // Test updateIncomingFund
+        // console.log("Calling updateIncomingFund...");
+        // const updatedDeposit = await updateIncomingFund(deposit1.id, { amount: 1600.00 });
+        // console.log("Updated deposit:", updatedDeposit);
+
+        // // Test deleteIncomingFund
+        // console.log("Calling deleteIncomingFund...");
+        // const deletedDeposit = await deleteIncomingFund(deposit3.id);
+        // console.log("Deleted deposit:", deletedDeposit);
 
     } catch (error) {
         console.log("Error during testDB!");
