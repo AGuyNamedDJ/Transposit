@@ -5,7 +5,7 @@ const { client } = require('./index');
 const { createUser, getAllUsers, getUserById, getUserByUsername, updateUser, deleteUser } = require('./users');
 const { createAccount, getAccountById, getAllAccountsByUserId, getAccountByAccountNumber, getAllAccountsByRoutingNumber, updateAccount, deleteAccount } = require('./accounts');
 const { createTransaction, getAllTransactions ,getTransactionById, getTransactionsByUserId, getTransactionsByAccountId, getTransactionsByAmount,getTransactionsByDate, getTransactionsByStatus, getTransactionsBeforeDate, getTransactionsAfterDate, getTransactionsBetweenDates } = require('./transactions');
-
+const { createDistributionRule, getRuleById, getRulesByUserId, updateRule,deleteRule } = require ('./distributionRules');
 
 // Methods: dropTables
 async function dropTables(){
@@ -152,6 +152,29 @@ async function createInitialTransactions() {
     }
 };
 
+// Methods: createInitialDistributionRules
+async function createInitialDistributionRules() {
+    console.log("Creating initial distribution rules...");
+    try {
+        await createDistributionRule({
+            user_id: 1,
+            account_id: 1,
+            percentage: 50.00
+        });
+        await createDistributionRule({
+            user_id: 1,
+            account_id: 2,
+            percentage: 50.00
+        });
+
+        console.log("Initial distribution rules created successfully.");
+    } catch (error) {
+        console.error("Error creating initial distribution rules!");
+        console.error(error);
+    }
+};
+
+
 // Rebuild DB
 async function rebuildDB() {
     try {
@@ -161,6 +184,7 @@ async function rebuildDB() {
         await createInitialUsers();
         await createInitialAccounts();
         await createInitialTransactions();
+        await createInitialDistributionRules();
 
     } catch (error) {
         console.log("Error during rebuildDB!")
@@ -251,74 +275,110 @@ async function testDB() {
         // console.log("Deleted account result:", deleteResult);
     
     // Test Transactions.js Helper.js FNs
-        // Test createTransaction
-        console.log("Creating initial transactions...");
-        const transaction1 = await createTransaction({
-            user_id: 1,
-            account_id: 1,
-            amount: '100.00',
-            status: 'completed',
-            transaction_date: '2023-05-01'
-        });
-        const transaction2 = await createTransaction({
-            user_id: 1,
-            account_id: 2,
-            amount: '200.00',
-            status: 'pending',
-            transaction_date: '2023-07-01'
-        });
-        console.log("Transactions created:", transaction1, transaction2);
+        // // Test createTransaction
+        // console.log("Creating initial transactions...");
+        // const transaction1 = await createTransaction({
+        //     user_id: 1,
+        //     account_id: 1,
+        //     amount: '100.00',
+        //     status: 'completed',
+        //     transaction_date: '2023-05-01'
+        // });
+        // const transaction2 = await createTransaction({
+        //     user_id: 1,
+        //     account_id: 2,
+        //     amount: '200.00',
+        //     status: 'pending',
+        //     transaction_date: '2023-07-01'
+        // });
+        // console.log("Transactions created:", transaction1, transaction2);
 
-        // Test getTransactionById
-        console.log("Calling getTransactionById...");
-        const singleTransactionById = await getTransactionById(transaction1.id);
-        console.log("Transaction by ID:", singleTransactionById);
+        // // Test getTransactionById
+        // console.log("Calling getTransactionById...");
+        // const singleTransactionById = await getTransactionById(transaction1.id);
+        // console.log("Transaction by ID:", singleTransactionById);
 
-        // Test getTransactionsByUserId
-        console.log("Calling getTransactionsByUserId...");
-        const userTransactions = await getTransactionsByUserId(1);
-        console.log("Transactions for user ID 1:", userTransactions);
+        // // Test getTransactionsByUserId
+        // console.log("Calling getTransactionsByUserId...");
+        // const userTransactions = await getTransactionsByUserId(1);
+        // console.log("Transactions for user ID 1:", userTransactions);
 
-        // Test getTransactionsByAccountId
-        console.log("Calling getTransactionsByAccountId...");
-        const accountTransactions = await getTransactionsByAccountId(1);
-        console.log("Transactions for account ID 1:", accountTransactions);
+        // // Test getTransactionsByAccountId
+        // console.log("Calling getTransactionsByAccountId...");
+        // const accountTransactions = await getTransactionsByAccountId(1);
+        // console.log("Transactions for account ID 1:", accountTransactions);
 
-        // Test getTransactionsByAmount
-        console.log("Calling getTransactionsByAmount...");
-        const transactionsByAmount = await getTransactionsByAmount('100.00');
-        console.log("Transactions by amount 100.00:", transactionsByAmount);
+        // // Test getTransactionsByAmount
+        // console.log("Calling getTransactionsByAmount...");
+        // const transactionsByAmount = await getTransactionsByAmount('100.00');
+        // console.log("Transactions by amount 100.00:", transactionsByAmount);
 
-        // Test getTransactionsByDate
-        console.log("Calling getTransactionsByDate...");
-        const transactionsByDate = await getTransactionsByDate('2023-05-01');
-        console.log("Transactions on date 2023-05-01:", transactionsByDate);
+        // // Test getTransactionsByDate
+        // console.log("Calling getTransactionsByDate...");
+        // const transactionsByDate = await getTransactionsByDate('2023-05-01');
+        // console.log("Transactions on date 2023-05-01:", transactionsByDate);
 
-        // Test getTransactionsByStatus
-        console.log("Calling getTransactionsByStatus...");
-        const transactionsByStatus = await getTransactionsByStatus('pending');
-        console.log("Transactions with status 'pending':", transactionsByStatus);
+        // // Test getTransactionsByStatus
+        // console.log("Calling getTransactionsByStatus...");
+        // const transactionsByStatus = await getTransactionsByStatus('pending');
+        // console.log("Transactions with status 'pending':", transactionsByStatus);
 
-        // Test getTransactionsBeforeDate
-        console.log("Calling getTransactionsBeforeDate...");
-        const transactionsBeforeDate = await getTransactionsBeforeDate('2023-06-01');
-        console.log("Transactions created before June 2023:", transactionsBeforeDate);
+        // // Test getTransactionsBeforeDate
+        // console.log("Calling getTransactionsBeforeDate...");
+        // const transactionsBeforeDate = await getTransactionsBeforeDate('2023-06-01');
+        // console.log("Transactions created before June 2023:", transactionsBeforeDate);
 
-        // Test getTransactionsAfterDate
-        console.log("Calling getTransactionsAfterDate...");
-        const transactionsAfterDate = await getTransactionsAfterDate('2023-06-01');
-        console.log("Transactions created after June 2023:", transactionsAfterDate);
+        // // Test getTransactionsAfterDate
+        // console.log("Calling getTransactionsAfterDate...");
+        // const transactionsAfterDate = await getTransactionsAfterDate('2023-06-01');
+        // console.log("Transactions created after June 2023:", transactionsAfterDate);
 
-        // Test getTransactionsBetweenDates
-        console.log("Calling getTransactionsBetweenDates...");
-        const transactionsBetweenDates = await getTransactionsBetweenDates('2023-05-01', '2023-07-01');
-        console.log("Transactions created between May 2023 and July 2023:", transactionsBetweenDates);
+        // // Test getTransactionsBetweenDates
+        // console.log("Calling getTransactionsBetweenDates...");
+        // const transactionsBetweenDates = await getTransactionsBetweenDates('2023-05-01', '2023-07-01');
+        // console.log("Transactions created between May 2023 and July 2023:", transactionsBetweenDates);
 
-        // Test getAllTransactions
-        console.log("Calling getAllTransactions...");
-        const allTransactions = await getAllTransactions();
-        console.log("All transactions:", allTransactions);
+        // // Test getAllTransactions
+        // console.log("Calling getAllTransactions...");
+        // const allTransactions = await getAllTransactions();
+        // console.log("All transactions:", allTransactions);
     
+    // Test distributionRules.js Helper FNs
+        // // Test createDistributionRule
+        // console.log("Creating initial distribution rules...");
+        // const rule1 = await createDistributionRule({
+        //     user_id: 1,
+        //     account_id: 1,
+        //     percentage: 50.00
+        // });
+        // const rule2 = await createDistributionRule({
+        //     user_id: 1,
+        //     account_id: 2,
+        //     percentage: 50.00
+        // });
+        // console.log("Distribution rules created:", rule1, rule2);
+
+        // // Test getRuleById
+        // console.log("Calling getRuleById...");
+        // const singleRuleById = await getRuleById(rule1.id);
+        // console.log("Rule by ID:", singleRuleById);
+
+        // // Test getRulesByUserId
+        // console.log("Calling getRulesByUserId...");
+        // const userRules = await getRulesByUserId(1);
+        // console.log("Rules for user ID 1:", userRules);
+
+        // // Test updateRule
+        // console.log("Calling updateRule...");
+        // const updatedRule = await updateRule(rule1.id, { percentage: 60.00 });
+        // console.log("Updated rule:", updatedRule);
+
+        // // Test deleteRule
+        // console.log("Calling deleteRule...");
+        // const deletedRule = await deleteRule(rule2.id);
+        // console.log("Deleted rule:", deletedRule);
+
+   
 
 
     } catch (error) {
