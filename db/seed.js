@@ -4,6 +4,7 @@ const { client } = require('./index');
 // File Imports
 const { createUser, getAllUsers, getUserById, getUserByUsername, updateUser, deleteUser } = require('./users');
 const { createAccount, getAccountById, getAllAccountsByUserId, getAccountByAccountNumber, getAllAccountsByRoutingNumber, updateAccount, deleteAccount } = require('./accounts');
+const { createTransaction, getTransactionById, getTransactionsByUserId, getTransactionsByAccountId, getTransactionsByAmount,getTransactionsByDate, getTransactionsByStatus } = require('./transactions');
 
 
 // Methods: dropTables
@@ -131,6 +132,26 @@ async function createInitialAccounts() {
     }
 };
 
+// Method: createInitialTransactions
+async function createInitialTransactions() {
+    console.log("Creating initial transactions...");
+    try {
+        // Example transaction details with specific dates
+        const transactions = [
+            { user_id: 1, account_id: 1, amount: 100.00, status: 'completed', transaction_date: '2023-05-15' },
+            { user_id: 1, account_id: 1, amount: 150.50, status: 'pending', transaction_date: '2023-06-20' },
+            { user_id: 1, account_id: 2, amount: 200.00, status: 'completed', transaction_date: '2023-07-10' }
+        ];
+
+        for (let transaction of transactions) {
+            await createTransaction(transaction);
+        }
+        console.log("Initial transactions created successfully.");
+    } catch (error) {
+        console.error("Error creating initial transactions:", error);
+    }
+};
+
 // Rebuild DB
 async function rebuildDB() {
     try {
@@ -139,6 +160,7 @@ async function rebuildDB() {
         await createTables();
         await createInitialUsers();
         await createInitialAccounts();
+        await createInitialTransactions();
 
     } catch (error) {
         console.log("Error during rebuildDB!")
@@ -229,6 +251,11 @@ async function testDB() {
         // console.log("Deleted account result:", deleteResult);
     
     // Test Transactions.js Helper.js FNs
+        // Test retrieving transactions by user ID
+        console.log("Calling getTransactionsByUserId...");
+        const userTransactions = await getTransactionsByUserId(1);
+        console.log("Retrieved transactions for user ID 1:", userTransactions);
+    
 
 
     } catch (error) {

@@ -124,6 +124,54 @@ async function getTransactionsByDate(transactionDate) {
     }
 };
 
+// getTransactionsBeforeDate
+async function getTransactionsBeforeDate(date) {
+    try {
+        const result = await client.query(`
+            SELECT *
+            FROM transactions
+            WHERE transaction_date < $1;
+        `, [date]);
+        result.rows.forEach(row => row.amount = decrypt(row.amount));
+        return result.rows;
+    } catch (error) {
+        console.error(`Failed to retrieve transactions before date ${date}: ${error}`);
+        throw error;
+    }
+};
+
+// getTransactionsAfterDate
+async function getTransactionsAfterDate(date) {
+    try {
+        const result = await client.query(`
+            SELECT *
+            FROM transactions
+            WHERE transaction_date > $1;
+        `, [date]);
+        result.rows.forEach(row => row.amount = decrypt(row.amount));
+        return result.rows;
+    } catch (error) {
+        console.error(`Failed to retrieve transactions after date ${date}: ${error}`);
+        throw error;
+    }
+};
+
+// getTransactionsBetweenDates
+async function getTransactionsBetweenDates(startDate, endDate) {
+    try {
+        const result = await client.query(`
+            SELECT *
+            FROM transactions
+            WHERE transaction_date BETWEEN $1 AND $2;
+        `, [startDate, endDate]);
+        result.rows.forEach(row => row.amount = decrypt(row.amount));
+        return result.rows;
+    } catch (error) {
+        console.error(`Failed to retrieve transactions between dates ${startDate} and ${endDate}: ${error}`);
+        throw error;
+    }
+}
+
 // getTransactionsByStatus
 async function getTransactionsByStatus(status) {
     try {
@@ -147,5 +195,8 @@ module.exports = {
     getTransactionsByAccountId,
     getTransactionsByAmount,
     getTransactionsByDate,
+    getTransactionsBeforeDate,
+    getTransactionsAfterDate, 
+    getTransactionsBetweenDates,
     getTransactionsByStatus
 };
