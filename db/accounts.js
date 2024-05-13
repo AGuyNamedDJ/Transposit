@@ -155,11 +155,76 @@ async function getAllAccountsByRoutingNumber(routingNumber) {
     }
 };
 
+//updateAccount
+async function updateAccount(accountId, updates) {
+    const { account_type, account_name, account_number, routing_number } = updates;
+
+    // Validate and encrypt if necessary
+    if (account_type) validateAccountType(account_type);
+    if (account_name) validateAccountName(account_name);
+    if (account_number) {
+        validateAccountNumber(account_number);
+        updates.account_number = encrypt(account_number);
+    }
+    if (routing_number) {
+        validateRoutingNumber(routing_number);
+        updates.routing_number = encrypt(routing_number);
+    }
+
+    const fields = { account_type, account_name, account_number, routing_number };
+    const setClauses = Object.keys(fields)
+        .filter(key => fields[key] !== undefined)
+        .map((key, index) => `"${key}"=$${index + 2}`).join(', ');
+    const values = Object.values(fields).filter(value => value !== undefined);
+
+    if (!setClauses.length) return null;  // No updates provided
+
+    try {
+        const result = await client.query(`
+            UPDATE accounts
+            SET ${setClauses}
+            WHERE id = $1
+            RETURNING *;
+        `, [accountId, ...values]);
+        if (result.rows.length) {
+            const account = result.rows[0];
+            account.account_number = decrypt(account.account_number);
+            account.routing_number = decrypt(account.routing_number);
+            return account;
+        } else {
+            return null; // No account found
+        }
+    } catch (error) {
+        console.error(`Failed to update account ID ${accountId}: ${error}`);
+        throw new Error(`Failed to update account due to a server error!`);
+    }
+};
+
+// deleteAccount
+async function deleteAccount(accountId) {
+    try {
+        const result = await client.query(`
+            DELETE FROM accounts WHERE id = $1 RETURNING id;
+        `, [accountId]);
+        if (result.rows.length) {
+            console.log(`Account ID ${accountId} deleted successfully.`);
+            return result.rows[0];
+        } else {
+            console.log(`No account found with ID: ${accountId}`);
+            return null; // No account found
+        }
+    } catch (error) {
+        console.error(`Failed to delete account ID ${accountId}: ${error}`);
+        throw new Error(`Failed to delete account due to a server error!`);
+    }
+};
+
 module.exports = {
     createAccount,
     getAccountById,
     getAllAccountsByUserId,
     getAccountByAccountNumber,
-    getAllAccountsByRoutingNumber
-
+    getAllAccountsByRoutingNumber,
+    updateAccount,
+    deleteAccount
 };
