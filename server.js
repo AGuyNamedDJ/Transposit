@@ -6,7 +6,7 @@ const cors = require('cors');
 const app = express();
 
 // Import project dirs
-// const { apiRouter } = require('./api/index');
+const { apiRouter } = require('./api/index');
 const { client } = require('./db/index');
 
 // Middleware

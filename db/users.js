@@ -42,7 +42,6 @@ async function createUser({ username, password, email, first_name, last_name, ph
     if (!validateEmail(email)) {
         throw new Error('Invalid email format.');
     }
-
     if (!validateName(first_name) || !validateName(last_name)) {
         throw new Error('Invalid name. Must not be empty.');
     }
@@ -67,7 +66,7 @@ async function createUser({ username, password, email, first_name, last_name, ph
 
         const user = result.rows[0];
         if (user) {
-            console.log(`User ${username} inserted into database`);
+            console.log(`User ${username} inserted into database:`, user);
             return user;
         } else {
             console.log(`User creation failed: Username ${username} already exists.`);
@@ -139,7 +138,7 @@ async function getUserByUsername(username) {
             console.log(`No user found with username: ${username}`);
             return null;
         } else {
-            console.log(`User with username: ${username} retrieved successfully.`);
+            console.log(`User with username: ${username} retrieved successfully:`, user);
             return user;
         }
     } catch (error) {
@@ -203,6 +202,38 @@ async function updateUser(username, fields = {}) {
     }
 };
 
+// loginUser
+async function loginUser({ username, password }) {
+    try {
+        // Fetch user by username
+        const result = await client.query(`
+            SELECT * FROM users 
+            WHERE username = $1;
+        `, [username]);
+
+        // Check if user exists
+        const user = result.rows[0];
+        if (!user) {
+            throw new Error('User not found!');
+        }
+
+        // Compare provided password with stored hashed password
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            throw new Error('Invalid password!');
+        }
+
+        // Remove password from user object before returning
+        const { password: _, ...userWithoutPassword } = user;
+
+        return userWithoutPassword;
+    } catch (error) {
+        console.error(`Could not log in user ${username}`);
+        console.error(error);
+        throw new Error('Failed to log in user due to a server error!');
+    }
+};
+
 // deleteUser
 async function deleteUser(username) {
     try {
@@ -220,6 +251,7 @@ async function deleteUser(username) {
             return null;  // Indicate that no user was found
         }
 
+        console.log(`User ${username} found, proceeding to delete.`);
         // Proceed to delete user
         const result = await client.query(`
             DELETE FROM users WHERE username = $1 RETURNING username
@@ -243,5 +275,6 @@ module.exports = {
     getUserById,
     getUserByUsername,
     updateUser,
-    deleteUser
+    deleteUser,
+    loginUser
 };
