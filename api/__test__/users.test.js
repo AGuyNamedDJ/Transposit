@@ -13,7 +13,6 @@ const { createUser,
     updateUser
  } = require('../../db/users');
 
-
 // Utility functions for setting up and cleaning up the database
 async function setupDatabase() {
     try {

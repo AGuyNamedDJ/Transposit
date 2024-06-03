@@ -79,7 +79,6 @@ usersRouter.get('/username/:username', authenticateUser, async (req, res, next) 
     }
 });
 
-
 // Endpoint to register (create new user)
 usersRouter.post('/register', async (req, res, next) => {
     const { username, password, email, first_name, last_name, phone_number, date_of_birth } = req.body;
@@ -127,13 +126,10 @@ usersRouter.post('/register', async (req, res, next) => {
     }
 });
 
-// Endpoint to getUserByUsername
-usersRouter.get('/username/:username', authenticateUser, async (req, res, next) => {
+// Endpoint to updateUser
+usersRouter.put('/:id', authenticateUser, async (req, res, next) => {
     try {
-        const user = await getUserByUsername(req.params.username);
-        if (!user) {
-            return res.status(404).send({ message: 'User not found!' });
-        }
+        const user = await updateUser(req.params.id, req.body);
         res.send({ user });
     } catch (error) {
         next(error);
