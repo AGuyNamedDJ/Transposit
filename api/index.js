@@ -15,7 +15,7 @@ apiRouter.use(async (req, res, next) => {
     // No authoriation
     if (!auth) {
         console.log("No auth!")
-        next(); // Call next middleware/route handler
+        next();
 
         // Authorization, so check for auth header 'Bearer'
     } else if (auth) {
@@ -24,7 +24,7 @@ apiRouter.use(async (req, res, next) => {
 
         // Verify JWT token
         try {
-            const parsedToken = await jwt.verify(token, JWT_SECRET); // Verifying via jwt secret
+            const parsedToken = await jwt.verify(token, JWT_SECRET);
             console.log("Parsed Token", parsedToken)
             const id = parsedToken && parsedToken.id // Get id from parsed token
             if (id) { 
@@ -62,7 +62,9 @@ apiRouter.use((error, req, res, next) => {
 });
 
 // Routers
+const {accountsRouter} = require('./accounts');
 const {usersRouter} = require('./users');
+apiRouter.use('/accounts', accountsRouter);
 apiRouter.use('/users', usersRouter);
 
 // Export
