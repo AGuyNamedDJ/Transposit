@@ -63,8 +63,10 @@ apiRouter.use((error, req, res, next) => {
 
 // Routers
 const {accountsRouter} = require('./accounts');
+const {distributionRulesRouter} = require('./accounts');
 const {usersRouter} = require('./users');
 apiRouter.use('/accounts', accountsRouter);
+apiRouter.use('/distributionrules', distributionRulesRouter);
 apiRouter.use('/users', usersRouter);
 
 // Export
