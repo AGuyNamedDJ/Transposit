@@ -185,7 +185,7 @@ async function getTransactionsBetweenDates(startDate, endDate) {
         console.error(`Failed to retrieve transactions between dates ${startDate} and ${endDate}: ${error}`);
         throw error;
     }
-}
+};
 
 // getTransactionsByStatus
 async function getTransactionsByStatus(status) {
