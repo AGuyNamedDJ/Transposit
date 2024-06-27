@@ -1,6 +1,6 @@
 # Software Development Life Cycle (SDLC) Plan
 
-This document outlines the high-level strategy and plan for developing the backend of the Transport system.
+This document outlines the high-level strategy and plan for developing the backend of the Transposit system.
 
 ## Table of Contents <a name="table-of-contents"></a>
 
@@ -17,22 +17,22 @@ This document outlines the high-level strategy and plan for developing the backe
 ## Inception Overview <a name="inception"></a>
 
 1. **Identified the key stakeholders**:
-   - The main stakeholders of this project are myself, Dalron J. Robertson, and other traders I share it with. The system is built for my personal use and for enhancing the trading strategies of others.
+   - The main stakeholders of this project are myself, Dalron J. Robertson, and other users who will manage their financial transactions. The system is built for personal use and for enhancing the efficiency of money transfers for others.
 2. **Gathered requirements**:
-   - Through my extensive experience and analysis of existing systems, I determined the essential features for the backend system. These included managing user accounts, handling market data, implementing AI models, and ensuring secure data access.
+   - Through my experience and analysis of financial systems, I determined the essential features for the backend system. These included managing user accounts, handling incoming deposits, creating distribution rules, and ensuring secure data access.
 3. **Defined the system's scope**:
-   - Based on the requirements, I defined the scope of the backend application to ensure it would fully support the functionalities required for quantitative trading.
+   - Based on the requirements, I defined the scope of the backend application to ensure it would fully support the functionalities required for an advanced money transfer system.
 4. **Outlined initial resources and timelines**:
    - I determined the resources needed, such as development tools and technologies, and created a preliminary timeline for the development process.
 5. **Designed the system architecture**:
-   - A crucial step was designing a comprehensive database schema to ensure efficient data management. The schema was built with a focus on scalability and optimization to handle various data such as user information, market data, AI models, and trading strategies.
+   - A crucial step was designing a comprehensive database schema to ensure efficient data management. The schema was built with a focus on scalability and optimization to handle various data such as user information, account details, deposit records, and distribution rules.
 
 ---
 
 ## Design <a name="design"></a>
 
 1. **Database Design**:
-   - Using the requirements I gathered, I designed a relational database schema in PostgreSQL. The schema includes several tables to efficiently manage users, market data, AI models, and trading strategies. With careful planning and normalization, I ensured data integrity and efficient storage.
+   - Using the requirements I gathered, I designed a relational database schema in PostgreSQL. The schema includes several tables to efficiently manage users, accounts, deposits, transactions, and distribution rules. With careful planning and normalization, I ensured data integrity and efficient storage.
 2. **API Design**:
    - Next, I designed RESTful APIs to expose the necessary endpoints for the frontend application to interact with the data. I followed best practices for API design, including the use of HTTP methods, status codes, and sensible endpoint paths.
 3. **Application Architecture Design**:
@@ -124,7 +124,7 @@ By following this detailed manual testing process, you can ensure each part of t
 
 ### Deployment <a name="deployment"></a>
 
-Deployment is the phase where the application is made available to end users. For the Transport project, I've chosen [Render](https://render.com) as the deployment platform, given its simplicity, reliability, and excellent support for Node.js applications.
+Deployment is the phase where the application is made available to end users. For the Transposit project, I've chosen [Render](https://render.com) as the deployment platform, given its simplicity, reliability, and excellent support for Node.js applications.
 
 Render enables automatic deployments from your GitHub or GitLab repositories, along with integrated support for HTTPS, custom domains, and continuous integration/continuous deployment (CI/CD).
 
@@ -144,4 +144,24 @@ Maintenance is an ongoing process of monitoring, updating, and improving the app
 2. **Updates and Improvements**: As I collect user feedback and data, I iterate on the application, making updates and improvements as necessary. These changes are tested in the development environment before being deployed to the live site.
 3. **Security Updates**: I stay alert to any potential security vulnerabilities and promptly update the application with necessary security patches.
 
-Through these Deployment and Maintenance procedures, I ensure that the application is not only always accessible to users but also continues to meet and exceed their needs over time. This also helps maintain a robust, secure, and high-performing application that aligns
+Through these Deployment and Maintenance procedures, I ensure that the application is not only always accessible to users but also continues to meet and exceed their needs over time. This also helps maintain a robust, secure, and high-performing application that aligns with industry best practices.
+
+---
+
+## Credits <a name="credits"></a>
+
+Transport was designed and developed by Dalron J. Robertson, showcasing his expertise in backend development and his commitment to creating efficient, secure, and scalable solutions for financial transaction management.
+
+- **Project Lead and Developer**: Dalron J. Robertson
+
+---
+
+## Contact Information <a name="contact-information"></a>
+
+For any questions, feedback, or contributions, please contact:
+
+- Email: dalronj.robertson@gmail.com
+- Github: [AGuyNamedDJ](https://github.com/AGuyNamedDJ)
+- LinkedIn: [Dalron J. Robertson](https://www.linkedin.com/in/dalronjrobertson/)
+- Website: [dalronjrobertson.com](https://dalronjrobertson.com)
+- YouTube: [AGNDJ](https://youtube.com/@AGNDJ)
