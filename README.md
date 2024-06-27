@@ -238,11 +238,15 @@ For example, to test the Create Account endpoint:
 
 By following this detailed manual testing process, you can ensure each part of the system works as intended and catch any issues early.
 
+---
+
 ## Credits <a name="credits"></a>
 
 Transposit was designed and developed by Dalron J. Robertson, showcasing his expertise in backend development and his commitment to creating efficient, secure, and scalable solutions for financial transaction management.
 
 **Project Lead and Developer**: Dalron J. Robertson
+
+---
 
 ## Contact Information <a name="contact-information"></a>
 
