@@ -218,7 +218,38 @@ For example, to test the Create Account endpoint:
         }
     });
     ```
+    2. **Manual Request with Postman**:
+        - Open Postman and create a POST request to `http://localhost:3000/api/accounts`.
+        - In the body of the request, include the account data in JSON format:
+
+        ```json
+        {
+            "name": "Savings Account",
+            "balance": 5000
+        }
+        ```
+
+    3. **Verify Logs**:
+        - Check the server logs to ensure the data was received and processed correctly.
+        - Verify the logs show the expected data at each stage of the process.
+
+    4. **Database Verification**:
+        - Use a PostgreSQL client to query the relevant table and verify that the data has been updated or retrieved correctly.
+
+By following this detailed manual testing process, you can ensure each part of the system works as intended and catch any issues early.
 
 ## Credits <a name="credits"></a>
 
+Transposit was designed and developed by Dalron J. Robertson, showcasing his expertise in backend development and his commitment to creating efficient, secure, and scalable solutions for financial transaction management.
+
+**Project Lead and Developer**: Dalron J. Robertson
+
 ## Contact Information <a name="contact-information"></a>
+
+For any questions, feedback, or contributions, please contact:
+
+- Email: dalronj.robertson@gmail.com
+- Github: [AGuyNamedDJ](https://github.com/AGuyNamedDJ)
+- LinkedIn: [Dalron J. Robertson](https://www.linkedin.com/in/dalronjrobertson/)
+- Website: [dalronjrobertson.com](https://dalronjrobertson.com)
+- YouTube: [AGNDJ](https://youtube.com/@AGNDJ)
